@@ -43,6 +43,9 @@ serviceAccount:
   # -- The name of the service account to use (generated from fullname template if empty)
   name: ""
 
+# -- Annotations to add to the Deployment/StatefulSet metadata
+annotations: {}
+
 # -- Annotations to add to pods
 podAnnotations: {}
 

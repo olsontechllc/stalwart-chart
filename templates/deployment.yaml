@@ -6,6 +6,10 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ include "stalwart.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
+  {{- with .Values.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -14,11 +18,10 @@ spec:
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
+      {{- with .Values.podAnnotations }}
       annotations:
-        reloader.stakater.com/auto: "true"
-        {{- with .Values.podAnnotations }}
         {{- toYaml . | nindent 8 }}
-        {{- end }}
+      {{- end }}
       labels:
         {{- include "stalwart.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}

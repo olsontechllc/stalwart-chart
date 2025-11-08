@@ -5,6 +5,37 @@ All notable changes to the Stalwart Helm Chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2025-01-08
+
+### Added
+- New `annotations` value for configurable Deployment/StatefulSet metadata annotations
+- Support for applying annotations to workload controllers (Deployment/StatefulSet) independently from pod annotations
+
+### Fixed
+- **IMPORTANT**: Stakater Reloader annotation placement corrected - now applies to Deployment/StatefulSet metadata instead of pod template metadata
+  - This follows the correct Kubernetes pattern where Reloader watches workload resources, not pods
+  - Prevents unnecessary pod restarts when annotations change
+  - Aligns with official Stakater Reloader documentation
+
+### Changed
+- **BREAKING**: Removed hardcoded `reloader.stakater.com/auto: "true"` annotation from deployment.yaml and statefulset.yaml templates
+  - Users who rely on Stakater Reloader must now explicitly set this annotation in their values:
+    ```yaml
+    annotations:
+      reloader.stakater.com/auto: "true"
+    ```
+  - This change makes the chart more flexible and removes opinionated defaults
+
+### Migration Guide
+
+If you were previously relying on the automatic Stakater Reloader annotation, update your values file:
+
+```yaml
+# Add to your values.yaml or values override
+annotations:
+  reloader.stakater.com/auto: "true"
+```
+
 ## [0.1.0] - 2025-01-08
 
 Initial public release of the Stalwart Mail Server Helm chart.
