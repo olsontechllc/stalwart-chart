@@ -49,10 +49,30 @@ If enabling FDB client certificate provisioning (`fdbClientCert.enabled=true`):
 1. Configure a PKI secrets engine in Vault/OpenBao
 2. Create a Kubernetes auth role for the chart's ServiceAccount
 3. Ensure the role has permissions to sign certificates and read the root CA
-4. Provide the OpenBao CA certificate as a Secret:
+4. Provide the OpenBao CA certificate for VaultDynamicSecret authentication:
+
+   **Important:** External Secrets Operator v1.0.0 does not support cross-namespace secret references for VaultDynamicSecret generators. You must provide the CA certificate inline or in the same namespace as the chart.
+
+   **Option A: Inline CA Bundle (Recommended for GitOps)**
    ```bash
-   kubectl create secret generic openbao-ca-cert \
-     --from-file=ca.crt=/path/to/openbao-ca.crt
+   # Get the CA certificate in base64 format
+   CA_BUNDLE=$(kubectl get secret openbao-ca-cert -n external-secrets -o jsonpath='{.data.ca\.crt}')
+
+   # Add to your values file
+   helm install stalwart ./stalwart-chart \
+     --set fdbClientCert.rootCA.caBundle="${CA_BUNDLE}"
+   ```
+
+   **Option B: Pre-create Secret in Chart Namespace**
+   ```bash
+   # Copy CA cert to the stalwart namespace
+   kubectl get secret openbao-ca-cert -n external-secrets -o yaml | \
+     sed 's/namespace: external-secrets/namespace: stalwart/' | \
+     kubectl create -f -
+
+   # Reference in values
+   helm install stalwart ./stalwart-chart \
+     --set fdbClientCert.rootCA.caSecretRef.name=openbao-ca-cert
    ```
 
 ## Installation

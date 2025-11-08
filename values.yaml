@@ -323,11 +323,28 @@ fdbClientCert:
     caBundle: ""
 
   # -- Root CA retrieval configuration
+  # Uses VaultDynamicSecret generator to fetch FDB PKI Root CA from Vault
   rootCA:
     # -- Vault path for retrieving the PKI root CA certificate
     path: "pki/cert/ca"
     # -- Vault role for reading the root CA certificate
     role: "pki-root-ca-reader"
+
+    # -- OpenBao CA certificate for VaultDynamicSecret authentication
+    # IMPORTANT: ESO v1.0.0 does not support cross-namespace secret references
+    # for VaultDynamicSecret. Provide CA cert inline or in same namespace.
+
+    # -- Base64-encoded PEM certificate (primary method)
+    # If provided, chart creates a secret in the same namespace
+    caBundle: ""
+
+    # -- Alternative: Reference existing secret in SAME namespace
+    # If caBundle is empty, chart will use this secret reference
+    caSecretRef:
+      # -- Secret name containing OpenBao CA certificate
+      name: ""
+      # -- Key within the secret containing the CA certificate
+      key: "ca.crt"
 
   # -- Certificate request configuration
   certificate:
@@ -341,14 +358,3 @@ fdbClientCert:
     duration: "24h"
     # -- Certificate renewal threshold
     renewBefore: "2h"
-
-  # -- OpenBao CA certificate configuration for secure communication
-  openbaoCACert:
-    # -- Secret name for OpenBao CA certificate
-    secretName: "openbao-ca-cert"
-    # -- Namespace for the secret
-    namespace: "default"
-    # -- Key name in the secret
-    key: "ca.crt"
-    # -- Base64-encoded CA certificate bundle
-    caBundle: ""
