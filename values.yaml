@@ -317,9 +317,10 @@ fdbClientCert:
     path: "pki_int/sign/fdb-client"
     # -- PKI role name for client certificate signing
     role: "fdb-client"
-    # -- Kubernetes auth path in Vault
-    kubernetesAuthPath: "/v1/auth/kubernetes"
-    # -- Base64-encoded CA bundle for Vault server verification
+    # -- Kubernetes auth mount path in Vault
+    kubernetesAuthPath: "kubernetes"
+    # -- Base64-encoded CA bundle for Vault server verification (cert-manager)
+    # Should match rootCA.caBundle value for consistent TLS verification
     caBundle: ""
 
   # -- Root CA retrieval configuration
