@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.1.0] - 2025-01-08
 
+### Fixed
+- OpenBao CA certificate secret is now only created if `fdbClientCert.openbaoCACert.caBundle` is provided
+- This allows using existing secrets managed externally or in different namespaces
+- Service template now supports `loadBalancerIP` and `externalIPs` fields
+
 ### Added
 - Initial public release of Stalwart Mail Server Helm chart
 - Support for single-instance and high-availability cluster deployments
@@ -74,32 +79,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Values.yaml uses helm-docs compatible comment format
 - All templates use consistent spacing and indentation
 - Removed emoji from user-facing output for professional tone
-
-## Migration from Internal Versions
-
-If upgrading from an internal development version, note these breaking changes:
-
-1. **Service Ports**: Add `protocol: TCP` to all service port definitions in your values overrides
-2. **cert-manager Namespace**: Update `certManager.namespace` if not using default `cert-manager`
-3. **FDB Secret Names**: Review and update if using non-default secret names
-4. **Security Contexts**: New default security contexts may require adjustments if using strict Pod Security Standards
-
-Example migration for service ports:
-```yaml
-# Old (internal version)
-service:
-  ports:
-    - name: smtp
-      port: 25
-      targetPort: 25
-
-# New (v0.1.0)
-service:
-  ports:
-    - name: smtp
-      port: 25
-      targetPort: 25
-      protocol: TCP
-```
-
-[0.1.0]: https://github.com/YOUR_ORG/stalwart-chart/releases/tag/v0.1.0

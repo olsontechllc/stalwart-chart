@@ -302,7 +302,7 @@ This Helm chart is open source and available under the Apache License 2.0.
 
 For issues and questions:
 - [Stalwart Documentation](https://stalw.art/docs/)
-- [GitHub Issues](https://github.com/stalwartlabs/mail-server)
+- [GitHub Issues](https://github.com/stalwartlabs/stalwart)
 
 ## Acknowledgments
 

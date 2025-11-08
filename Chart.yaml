@@ -15,8 +15,8 @@ keywords:
   - high-availability
 home: https://stalw.art
 sources:
-  - https://github.com/stalwartlabs/mail-server
-  - https://github.com/stalwartlabs/mail-server/tree/main/resources/docker
+  - https://github.com/stalwartlabs/stalwart
+  - https://github.com/stalwartlabs/stalwart/tree/main/resources/docker
 maintainers:
   - name: Olson Tech
     email: support@olsontech.io
