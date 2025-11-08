@@ -33,6 +33,16 @@ A Helm chart for deploying [Stalwart Mail Server](https://stalw.art/) on Kuberne
 
 Before installing this chart, you must have:
 
+**Important - Custom Image Required:** The official Stalwart images on Docker Hub are not built with FoundationDB support. You must build a custom image using the `Dockerfile.fdb` from the Stalwart repository and configure the chart to use it:
+
+```yaml
+image:
+  repository: your-registry.example.com/stalwart
+  tag: v0.14.1-fdb
+```
+
+The `Dockerfile.fdb` can be found at: https://github.com/stalwartlabs/stalwart/blob/main/resources/docker/Dockerfile.fdb
+
 1. A running FoundationDB cluster (v7.1+)
 2. A Kubernetes Secret containing the FDB cluster file:
    ```bash
