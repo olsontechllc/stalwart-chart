@@ -1,0 +1,23 @@
+apiVersion: v2
+name: stalwart
+description: A Helm chart for deploying the Stalwart mail and collaboration server in Kubernetes with FoundationDB.
+type: application
+version: 0.1.0
+appVersion: "v0.14.1"
+keywords:
+  - stalwart
+  - mail-server
+  - smtp
+  - imap
+  - email
+  - foundationdb
+  - cert-manager
+  - high-availability
+home: https://stalw.art
+sources:
+  - https://github.com/stalwartlabs/mail-server
+  - https://github.com/stalwartlabs/mail-server/tree/main/resources/docker
+maintainers:
+  - name: Olson Tech
+    email: support@olsontech.io
+icon: https://stalw.art/img/logo.svg

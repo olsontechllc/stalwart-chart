@@ -1,0 +1,30 @@
+{{- if .Values.fdbClientCert.enabled }}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ .Values.fdbClientCert.certificate.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "stalwart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: fdb-client-cert
+spec:
+  secretName: {{ .Values.fdbClientCert.certificate.secretName }}
+
+  commonName: {{ .Values.fdbClientCert.certificate.commonName }}
+
+  duration: {{ .Values.fdbClientCert.certificate.duration }}
+  renewBefore: {{ .Values.fdbClientCert.certificate.renewBefore }}
+
+  privateKey:
+    algorithm: RSA
+    size: 2048
+
+  usages:
+    - client auth
+
+  issuerRef:
+    name: {{ .Values.fdbClientCert.issuer.name }}
+    kind: Issuer
+{{- end }}

@@ -1,0 +1,25 @@
+{{- if .Values.clustering.enabled }}
+---
+# Headless service for StatefulSet pod DNS
+# Enables stable network identity for each Stalwart pod
+# Pod DNS: <pod-name>.<service-name>.<namespace>.svc.cluster.local
+# Example: server-prod-0.server-prod-headless.stalwart.svc.cluster.local
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "stalwart.fullname" . }}-headless
+  labels:
+    app.kubernetes.io/name: {{ include "stalwart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  clusterIP: None  # Headless service
+  publishNotReadyAddresses: true  # Allow DNS for pods before ready
+  selector:
+    app.kubernetes.io/name: {{ include "stalwart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP
+{{- end }}

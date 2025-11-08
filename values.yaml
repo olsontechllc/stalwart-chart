@@ -1,0 +1,354 @@
+# Default values for stalwart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# -- Number of replicas for non-clustered deployment
+replicaCount: 1
+
+# -- Container image configuration
+image:
+  # -- Stalwart mail server image repository
+  repository: stalwartlabs/stalwart
+  # -- Image pull policy
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag (default is the chart appVersion)
+  tag: "v0.14.1"
+
+# -- Init container image configuration
+initImage:
+  # -- Init container image repository (used for FDB cluster file setup)
+  repository: busybox
+  # -- Init container image tag
+  tag: "1.36.1"
+  # -- Init container image pull policy
+  pullPolicy: IfNotPresent
+
+# -- Image pull secrets for private registries
+imagePullSecrets: []
+
+# -- Override the chart name
+nameOverride: ""
+
+# -- Override the full release name
+fullnameOverride: ""
+
+# -- Service account configuration
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: true
+  # -- Automatically mount a ServiceAccount's API credentials
+  automount: true
+  # -- Annotations to add to the service account
+  annotations: {}
+  # -- The name of the service account to use (generated from fullname template if empty)
+  name: ""
+
+# -- Annotations to add to pods
+podAnnotations: {}
+
+# -- Labels to add to pods
+podLabels: {}
+
+# -- Pod security context
+podSecurityContext:
+  # -- Run as non-root user
+  runAsNonRoot: true
+  # -- User ID to run the container
+  runAsUser: 8080
+  # -- Group ID for filesystem access
+  fsGroup: 8080
+  # -- Ensure fsGroup ownership is applied
+  fsGroupChangePolicy: "OnRootMismatch"
+
+# -- Container security context
+securityContext:
+  # -- Drop all capabilities
+  capabilities:
+    drop:
+    - ALL
+  # -- Run as non-root user
+  runAsNonRoot: true
+  # -- Do not allow privilege escalation
+  allowPrivilegeEscalation: false
+  # -- Read-only root filesystem (disabled due to Stalwart requirements)
+  readOnlyRootFilesystem: false
+
+# -- Service configuration
+service:
+  # -- Service type (ClusterIP, NodePort, or LoadBalancer)
+  type: LoadBalancer
+  # -- External traffic policy (Local or Cluster)
+  externalTrafficPolicy: Local
+  # -- IP family policy for dual-stack support
+  ipFamilyPolicy: SingleStack
+  # -- Service ports configuration for mail protocols
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+    protocol: TCP
+  - name: https
+    port: 443
+    targetPort: 443
+    protocol: TCP
+  - name: smtp
+    port: 25
+    targetPort: 25
+    protocol: TCP
+  - name: submission
+    port: 587
+    targetPort: 587
+    protocol: TCP
+  - name: smtps
+    port: 465
+    targetPort: 465
+    protocol: TCP
+  - name: imap
+    port: 143
+    targetPort: 143
+    protocol: TCP
+  - name: imaps
+    port: 993
+    targetPort: 993
+    protocol: TCP
+  - name: sieve
+    port: 4190
+    targetPort: 4190
+    protocol: TCP
+
+# -- Ingress configuration
+ingress:
+  # -- Enable ingress
+  enabled: false
+  # -- Ingress class name
+  className: ""
+  # -- Ingress annotations
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  # -- Ingress hosts configuration
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  # -- Ingress TLS configuration
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+# -- Resource limits and requests
+resources:
+  # -- Resource limits
+  limits:
+    # -- CPU limit
+    cpu: 2000m
+    # -- Memory limit
+    memory: 4Gi
+  # -- Resource requests
+  requests:
+    # -- CPU request
+    cpu: 500m
+    # -- Memory request
+    memory: 1Gi
+
+# -- Liveness probe configuration
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# -- Readiness probe configuration
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+
+# -- Horizontal Pod Autoscaler configuration
+autoscaling:
+  # -- Enable autoscaling
+  enabled: false
+  # -- Minimum number of replicas
+  minReplicas: 1
+  # -- Maximum number of replicas
+  maxReplicas: 100
+  # -- Target CPU utilization percentage
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# -- Node selector for pod assignment
+nodeSelector: {}
+
+# -- Tolerations for pod assignment
+tolerations: []
+
+# -- Affinity rules for pod assignment
+affinity: {}
+
+# -- TLS certificate configuration
+tls:
+  # -- DNS names for the certificate
+  dnsNames: []
+  # -- ACME DNS server URL (for DNS-01 challenges)
+  acmeDnsServer: https://acme-dns.example.com
+  # -- ACME server URL (production or staging)
+  acmeServer: "https://acme-v02.api.letsencrypt.org/directory"
+  # -- Secret reference for ACME account credentials
+  accountSecretRef: {}
+
+# -- Stalwart-specific configuration
+stalwart:
+  # -- Default hostname for the mail server
+  defaultHostname: mail.example.com
+
+  # -- Fallback admin account configuration
+  # WARNING: Only enable for initial setup or emergency access
+  # Credentials are injected via STALWART_MAIL_ADMIN_USER and STALWART_MAIL_ADMIN_PASS environment variables
+  fallbackAdmin:
+    # -- Enable fallback admin account
+    enabled: false
+
+  # -- Tracer log configuration
+  # Console logging is always enabled (kubectl logs)
+  # File tracer provides log access via WebUI
+  tracer:
+    # -- Enable file-based tracer logs
+    enabled: false
+    # -- Log file directory path
+    path: "/var/log/stalwart"
+    # -- Log file prefix
+    prefix: "stalwart.log"
+    # -- Log rotation policy (daily, hourly, etc.)
+    rotate: "daily"
+    # -- Log level (trace, debug, info, warn, error)
+    level: "info"
+    # -- Enable ANSI color codes in logs
+    ansi: false
+
+# -- Clustering configuration for high availability
+# When enabled, converts Deployment to StatefulSet with NATS coordination
+clustering:
+  # -- Enable clustered deployment mode
+  enabled: false
+
+  # -- Number of Stalwart replicas in the cluster (overrides replicaCount when clustering is enabled)
+  replicas: 3
+
+  # -- NATS coordination backend configuration
+  nats:
+    # -- List of NATS server addresses for cluster coordination
+    addresses:
+      - "nats://nats-server.default.svc.cluster.local:4222"
+
+    # -- Enable NATS authentication
+    authEnabled: false
+    # -- Kubernetes secret containing NATS credentials (username and password keys)
+    credentialsSecret: "stalwart-nats-credentials"
+
+    # -- TLS configuration for NATS connection
+    tls:
+      # -- Enable TLS for NATS connection
+      enabled: false
+
+    # -- Disable message echo back to sender
+    noEcho: true
+    # -- Ping interval for connection health checks
+    pingInterval: "60s"
+    # -- Maximum reconnection attempts (0 = unlimited)
+    maxReconnects: 0
+
+    # -- Connection timeout settings
+    timeouts:
+      # -- Connection establishment timeout
+      connection: "5s"
+      # -- Request timeout
+      request: "10s"
+
+    # -- NATS client capacity settings
+    capacity:
+      # -- Client buffer capacity
+      client: 2048
+      # -- Subscription buffer capacity
+      subscription: 65536
+      # -- Read buffer size
+      readBuffer: 65535
+
+# -- cert-manager configuration
+certManager:
+  # -- Namespace where cert-manager is installed
+  namespace: "cert-manager"
+
+# -- FoundationDB configuration
+fdb:
+  # -- Secret names for FDB integration
+  secrets:
+    # -- Secret name containing the FDB cluster file
+    clusterFile: "stalwart-fdb-cluster-file"
+    # -- Secret name containing the FDB client certificate
+    clientCert: "stalwart-fdb-client-cert"
+  # -- FDB data compression algorithm (lz4, zstd, or none)
+  compression: "lz4"
+  # -- TLS peer verification string for FDB connections
+  tls:
+    # -- Certificate peer verification rules
+    peerVerification: "Check.Valid=1,Check.Unexpired=1"
+
+# -- FoundationDB client certificate configuration
+# Enables cert-manager integration for FDB client authentication
+fdbClientCert:
+  # -- Enable FDB client certificate provisioning
+  enabled: false
+
+  # -- ServiceAccount for certificate issuer authentication
+  serviceAccount:
+    # -- Create a dedicated service account
+    create: true
+    # -- Service account name
+    name: "fdb-client-issuer"
+
+  # -- Certificate issuer configuration
+  issuer:
+    # -- Issuer name
+    name: "fdb-client-issuer"
+    # -- Vault/OpenBao server URL
+    server: "https://vault.example.com:8200"
+    # -- PKI signing path in Vault (for signing client certificates)
+    path: "pki_int/sign/fdb-client"
+    # -- PKI role name for client certificate signing
+    role: "fdb-client"
+    # -- Kubernetes auth path in Vault
+    kubernetesAuthPath: "/v1/auth/kubernetes"
+    # -- Base64-encoded CA bundle for Vault server verification
+    caBundle: ""
+
+  # -- Root CA retrieval configuration
+  rootCA:
+    # -- Vault path for retrieving the PKI root CA certificate
+    path: "pki/cert/ca"
+    # -- Vault role for reading the root CA certificate
+    role: "pki-root-ca-reader"
+
+  # -- Certificate request configuration
+  certificate:
+    # -- Certificate resource name
+    name: "stalwart-fdb-client"
+    # -- Secret name for storing the certificate
+    secretName: "stalwart-fdb-client-cert"
+    # -- Certificate common name
+    commonName: "stalwart-fdb-client"
+    # -- Certificate validity duration
+    duration: "24h"
+    # -- Certificate renewal threshold
+    renewBefore: "2h"
+
+  # -- OpenBao CA certificate configuration for secure communication
+  openbaoCACert:
+    # -- Secret name for OpenBao CA certificate
+    secretName: "openbao-ca-cert"
+    # -- Namespace for the secret
+    namespace: "default"
+    # -- Key name in the secret
+    key: "ca.crt"
+    # -- Base64-encoded CA certificate bundle
+    caBundle: ""

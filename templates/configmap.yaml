@@ -1,0 +1,148 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "stalwart.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "stalwart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+data:
+  config.toml: |
+    {{- if .Values.stalwart.fallbackAdmin.enabled }}
+    # AUTHENTICATION CONFIGURATION
+    [authentication.fallback-admin]
+    user = "%{env:STALWART_MAIL_ADMIN_USER}%"
+    secret = "%{env:STALWART_MAIL_ADMIN_PASS}%"
+
+    {{- end }}
+    # SERVER CONFIGURATION
+    [server]
+    hostname = "{{ .Values.stalwart.defaultHostname }}"
+
+    # TLS CERTIFICATE CONFIGURATION
+    [certificate.default]
+    cert = "%{file:/opt/stalwart/etc/private/tls.crt}%"
+    private-key = "%{file:/opt/stalwart/etc/private/tls.key}%"
+
+    # PROTOCOL LISTENERS
+    [server.listener.http]
+    bind = "[::]:8080"
+    protocol = "http"
+
+    [server.listener.https]
+    bind = "[::]:443"
+    protocol = "http"
+    tls.implicit = true
+
+    [server.listener.imap]
+    bind = "[::]:143"
+    protocol = "imap"
+
+    [server.listener.imaptls]
+    bind = "[::]:993"
+    protocol = "imap"
+    tls.implicit = true
+
+    [server.listener.pop3]
+    bind = "[::]:110"
+    protocol = "pop3"
+
+    [server.listener.pop3s]
+    bind = "[::]:995"
+    protocol = "pop3"
+    tls.implicit = true
+
+    [server.listener.sieve]
+    bind = "[::]:4190"
+    protocol = "managesieve"
+
+    [server.listener.smtp]
+    bind = "[::]:25"
+    protocol = "smtp"
+
+    [server.listener.submission]
+    bind = "[::]:587"
+    protocol = "smtp"
+
+    [server.listener.submissions]
+    bind = "[::]:465"
+    protocol = "smtp"
+    tls.implicit = true
+
+    # DIRECTORY CONFIGURATION
+    [directory.internal]
+    type = "internal"
+    store = "foundation-db"
+
+    # STORAGE CONFIGURATION
+    [storage]
+    blob = "foundation-db"
+    data = "foundation-db"
+    directory = "internal"
+    fts = "foundation-db"
+    lookup = "foundation-db"
+
+    # FOUNDATIONDB STORE
+    [store."foundation-db"]
+    type = "foundationdb"
+    compression = {{ .Values.fdb.compression | quote }}
+
+    # LOGGING CONFIGURATION
+    # Console tracer - always enabled for container logs (kubectl logs)
+    [tracer.console]
+    type = "console"
+    level = "trace"
+    ansi = true
+    enable = true
+
+    # File tracer - optional for WebUI access
+    {{- if .Values.stalwart.tracer.enabled }}
+    [tracer.log]
+    type = "log"
+    path = "{{ .Values.stalwart.tracer.path }}"
+    prefix = "{{ .Values.stalwart.tracer.prefix }}"
+    rotate = "{{ .Values.stalwart.tracer.rotate }}"
+    level = "{{ .Values.stalwart.tracer.level }}"
+    ansi = {{ .Values.stalwart.tracer.ansi }}
+    enable = true
+    multiline = false
+    buffered = true
+    lossy = false
+    {{- end }}
+    {{- if .Values.clustering.enabled }}
+
+    # CLUSTERING CONFIGURATION
+    # Enables distributed coordination and high availability
+
+    # NATS Coordination Backend
+    # All cluster nodes communicate via NATS for state synchronization
+    [store."nats"]
+    type = "nats"
+    address = {{ .Values.clustering.nats.addresses | toJson }}
+    {{- if .Values.clustering.nats.authEnabled }}
+    user = "%{env:NATS_USERNAME}%"
+    password = "%{env:NATS_PASSWORD}%"
+    {{- end }}
+    no-echo = {{ .Values.clustering.nats.noEcho }}
+    {{- if .Values.clustering.nats.tls.enabled }}
+    tls.enable = true
+    {{- else }}
+    tls.enable = false
+    {{- end }}
+    timeout.connection = "{{ .Values.clustering.nats.timeouts.connection }}"
+    timeout.request = "{{ .Values.clustering.nats.timeouts.request }}"
+    ping-interval = "{{ .Values.clustering.nats.pingInterval }}"
+    max-reconnects = {{ .Values.clustering.nats.maxReconnects }}
+    capacity.client = {{ .Values.clustering.nats.capacity.client }}
+    capacity.subscription = {{ .Values.clustering.nats.capacity.subscription }}
+    capacity.read-buffer = {{ .Values.clustering.nats.capacity.readBuffer }}
+
+    # Cluster Configuration
+    # Node ID injected directly from pod-index via Downward API
+    # StatefulSet ordinals.start=1, so pod-index starts at 1 (not 0)
+    # Pod index 1 → STALWART_NODE_ID=1
+    # Pod index 2 → STALWART_NODE_ID=2
+    # Pod index 3 → STALWART_NODE_ID=3
+    [cluster]
+    coordinator = "nats"
+    node-id = "%{env:STALWART_NODE_ID}%"
+    {{- end }}

@@ -1,0 +1,24 @@
+{{- if .Values.fdbClientCert.enabled }}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ .Values.fdbClientCert.issuer.name }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "stalwart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: fdb-cert-manager
+    pki-role: fdb-client
+spec:
+  vault:
+    server: {{ .Values.fdbClientCert.issuer.server }}
+    path: {{ .Values.fdbClientCert.issuer.path }}
+    caBundle: {{ .Values.fdbClientCert.issuer.caBundle }}
+    auth:
+      kubernetes:
+        mountPath: {{ .Values.fdbClientCert.issuer.kubernetesAuthPath }}
+        role: {{ .Values.fdbClientCert.issuer.role }}
+        serviceAccountRef:
+          name: {{ .Values.fdbClientCert.serviceAccount.name }}
+{{- end }}

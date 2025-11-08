@@ -1,0 +1,18 @@
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ include "stalwart.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "stalwart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+spec:
+  acme:
+    privateKeySecretRef:
+      name: {{ include "stalwart.fullname" . }}-account-key
+    server: {{ .Values.tls.acmeServer | quote }}
+    solvers:
+      - dns01:
+          acmeDNS:
+            accountSecretRef:
+              {{ toYaml .Values.tls.accountSecretRef | nindent 14 }}
+            host: {{ .Values.tls.acmeDnsServer | quote }}

@@ -1,0 +1,40 @@
+{{- if .Values.fdbClientCert.enabled }}
+---
+# Role for cert-manager to create tokens for FDB client Issuer ServiceAccount
+# Scoped to only the specific ServiceAccount used by this Issuer
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ .Values.fdbClientCert.serviceAccount.name }}-token-creator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "stalwart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: cert-manager-rbac
+rules:
+- apiGroups: [""]
+  resources: ["serviceaccounts/token"]
+  # Restrict to only this specific ServiceAccount
+  resourceNames: [{{ .Values.fdbClientCert.serviceAccount.name | quote }}]
+  verbs: ["create"]
+---
+# RoleBinding to grant cert-manager permission to create tokens
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ .Values.fdbClientCert.serviceAccount.name }}-token-creator
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "stalwart.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: cert-manager-rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Values.fdbClientCert.serviceAccount.name }}-token-creator
+subjects:
+# cert-manager ServiceAccount from configured cert-manager namespace
+- kind: ServiceAccount
+  name: cert-manager
+  namespace: {{ .Values.certManager.namespace }}
+{{- end }}
