@@ -5,6 +5,20 @@ All notable changes to the Stalwart Helm Chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-11-09
+
+### Added
+- Configurable console logger settings via `stalwart.tracer.console`
+  - `stalwart.tracer.console.enabled` - Enable/disable console logging (default: true)
+  - `stalwart.tracer.console.level` - Console log level: trace, debug, info, warn, error (default: "info")
+  - `stalwart.tracer.console.ansi` - Enable ANSI color codes in console logs (default: true)
+- Console logging can now be disabled or have its log level adjusted independently from file logging
+
+### Changed
+- Console tracer configuration is no longer hardcoded in the ConfigMap template
+- Default console log level changed from "trace" to "info" for cleaner production logs
+- File tracer configuration remains backward compatible at the same values path
+
 ## [0.2.1] - 2025-11-08
 
 ### Fixed

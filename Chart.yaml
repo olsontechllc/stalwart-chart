@@ -2,7 +2,7 @@ apiVersion: v2
 name: stalwart
 description: A Helm chart for deploying the Stalwart mail and collaboration server in Kubernetes with FoundationDB.
 type: application
-version: 0.2.1
+version: 0.3.0
 appVersion: "v0.14.1"
 keywords:
   - stalwart

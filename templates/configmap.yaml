@@ -87,12 +87,14 @@ data:
     compression = {{ .Values.fdb.compression | quote }}
 
     # LOGGING CONFIGURATION
-    # Console tracer - always enabled for container logs (kubectl logs)
+    # Console tracer - container logs (kubectl logs)
+    {{- if .Values.stalwart.tracer.console.enabled }}
     [tracer.console]
     type = "console"
-    level = "trace"
-    ansi = true
+    level = "{{ .Values.stalwart.tracer.console.level }}"
+    ansi = {{ .Values.stalwart.tracer.console.ansi }}
     enable = true
+    {{- end }}
 
     # File tracer - optional for WebUI access
     {{- if .Values.stalwart.tracer.enabled }}

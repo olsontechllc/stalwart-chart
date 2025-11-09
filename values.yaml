@@ -213,10 +213,19 @@ stalwart:
     enabled: false
 
   # -- Tracer log configuration
-  # Console logging is always enabled (kubectl logs)
-  # File tracer provides log access via WebUI
   tracer:
+    # -- Console tracer configuration
+    # Console logs are visible via kubectl logs
+    console:
+      # -- Enable console logging
+      enabled: true
+      # -- Console log level (trace, debug, info, warn, error)
+      level: "info"
+      # -- Enable ANSI color codes in console logs
+      ansi: true
+
     # -- Enable file-based tracer logs
+    # File tracer provides log access via WebUI
     enabled: false
     # -- Log file directory path
     path: "/var/log/stalwart"
@@ -224,9 +233,9 @@ stalwart:
     prefix: "stalwart.log"
     # -- Log rotation policy (daily, hourly, etc.)
     rotate: "daily"
-    # -- Log level (trace, debug, info, warn, error)
+    # -- Log level for file tracer (trace, debug, info, warn, error)
     level: "info"
-    # -- Enable ANSI color codes in logs
+    # -- Enable ANSI color codes in file logs
     ansi: false
 
 # -- Clustering configuration for high availability
