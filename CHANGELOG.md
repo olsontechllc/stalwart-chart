@@ -5,6 +5,38 @@ All notable changes to the Stalwart Helm Chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2025-11-08
+
+### Fixed
+- **CRITICAL**: Fixed cert-manager Vault/OpenBao issuer authentication for FDB client certificates
+  - Updated `fdb-client-issuer.yaml` template to automatically prepend `/v1/auth/` to `kubernetesAuthPath`
+  - Resolves cert-manager error: `http2: invalid request :path "kubernetes/example-cluster/login"`
+  - Users should now specify only the Vault mount point (e.g., `kubernetes/example-cluster`) instead of the full API path
+  - This aligns with Vault's canonical path naming used elsewhere in the ecosystem
+
+### Changed
+- **BREAKING**: `fdbClientCert.issuer.kubernetesAuthPath` value format changed
+  - **Old format**: `/v1/auth/kubernetes/example-cluster` (full Vault API path)
+  - **New format**: `kubernetes/example-cluster` (Vault mount point only)
+  - The chart now handles the `/v1/auth/` prefix internally for cert-manager compatibility
+  - ESO VaultDynamicSecret continues to use the mount point format directly
+
+### Migration Guide
+
+If you're upgrading from 0.2.0, update your `kubernetesAuthPath` value:
+
+```yaml
+# OLD (0.2.0 and earlier)
+fdbClientCert:
+  issuer:
+    kubernetesAuthPath: "/v1/auth/kubernetes/example-cluster"
+
+# NEW (0.2.1+)
+fdbClientCert:
+  issuer:
+    kubernetesAuthPath: "kubernetes/example-cluster"
+```
+
 ## [0.2.0] - 2025-11-08
 
 ### Added

@@ -320,7 +320,9 @@ fdbClientCert:
     path: "pki_int/sign/fdb-client"
     # -- PKI role name for client certificate signing
     role: "fdb-client"
-    # -- Kubernetes auth mount path in Vault
+    # -- Kubernetes auth mount path in Vault (e.g., "kubernetes" or "kubernetes/cluster-name")
+    # This should be the canonical Vault mount point, not the HTTP API path.
+    # The chart will automatically prepend "/v1/auth/" for cert-manager.
     kubernetesAuthPath: "kubernetes"
     # -- Base64-encoded CA bundle for Vault server verification (cert-manager)
     # Should match rootCA.caBundle value for consistent TLS verification

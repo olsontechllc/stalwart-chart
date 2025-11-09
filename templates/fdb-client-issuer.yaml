@@ -17,7 +17,7 @@ spec:
     caBundle: {{ .Values.fdbClientCert.issuer.caBundle }}
     auth:
       kubernetes:
-        mountPath: {{ .Values.fdbClientCert.issuer.kubernetesAuthPath }}
+        mountPath: {{ printf "/v1/auth/%s" .Values.fdbClientCert.issuer.kubernetesAuthPath }}
         role: {{ .Values.fdbClientCert.issuer.role }}
         serviceAccountRef:
           name: {{ .Values.fdbClientCert.serviceAccount.name }}
