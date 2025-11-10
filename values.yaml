@@ -212,6 +212,19 @@ stalwart:
     # -- Enable fallback admin account
     enabled: false
 
+  # -- Metrics configuration
+  metrics:
+    # -- OpenTelemetry metrics exporter configuration
+    otel:
+      # -- Enable OpenTelemetry metrics export
+      enabled: false
+      # -- Transport protocol (grpc or http)
+      transport: "grpc"
+      # -- OpenTelemetry Collector metrics endpoint URL (for grpc: host:port, for http: full URL with path)
+      endpoint: "https://otel-collector.example.com"
+      # -- Metrics push interval (e.g., "30s", "1m")
+      interval: "30s"
+
   # -- Tracer log configuration
   tracer:
     # -- Console tracer configuration
@@ -237,6 +250,24 @@ stalwart:
     level: "info"
     # -- Enable ANSI color codes in file logs
     ansi: false
+
+    # -- OpenTelemetry tracer configuration
+    # Sends traces and logs to OpenTelemetry Collector via separate endpoints
+    otel:
+      # -- Transport protocol (grpc or http)
+      transport: "http"
+      # -- OpenTelemetry Collector logs endpoint URL (HTTP: include /v1/logs path, gRPC: host:port only)
+      logsEndpoint: "https://otel-collector.example.com:4318/v1/logs"
+      # -- OpenTelemetry Collector traces endpoint URL (HTTP: include /v1/traces path, gRPC: host:port only)
+      tracesEndpoint: "https://otel-collector.example.com:4318/v1/traces"
+      # -- Log level for OpenTelemetry tracer (trace, debug, info, warn, error)
+      level: "info"
+      # -- Enable log exporter (sends logs to OTel Collector)
+      enableLogExporter: true
+      # -- Enable span exporter (sends traces to OTel Collector)
+      enableSpanExporter: true
+      # -- Throttle duration between batches (e.g., "1s", "500ms")
+      throttle: "1s"
 
 # -- Clustering configuration for high availability
 # When enabled, converts Deployment to StatefulSet with NATS coordination

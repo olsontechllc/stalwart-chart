@@ -86,6 +86,15 @@ data:
     type = "foundationdb"
     compression = {{ .Values.fdb.compression | quote }}
 
+    # METRICS CONFIGURATION
+    {{- if .Values.stalwart.metrics.otel.enabled }}
+    # OpenTelemetry metrics exporter
+    [metrics.open-telemetry]
+    transport = "{{ .Values.stalwart.metrics.otel.transport }}"
+    endpoint = "{{ .Values.stalwart.metrics.otel.endpoint }}"
+    interval = "{{ .Values.stalwart.metrics.otel.interval }}"
+    {{- end }}
+
     # LOGGING CONFIGURATION
     # Console tracer - container logs (kubectl logs)
     {{- if .Values.stalwart.tracer.console.enabled }}
@@ -109,6 +118,36 @@ data:
     multiline = false
     buffered = true
     lossy = false
+    {{- end }}
+
+    # OpenTelemetry tracer for logs - sends logs to OTel Collector
+    {{- if .Values.stalwart.tracer.otel.enableLogExporter }}
+    [tracer.otel-logs]
+    type = "open-telemetry"
+    transport = "{{ .Values.stalwart.tracer.otel.transport }}"
+    endpoint = "{{ .Values.stalwart.tracer.otel.logsEndpoint }}"
+    level = "{{ .Values.stalwart.tracer.otel.level }}"
+    enable = true
+    enable.log-exporter = true
+    enable.span-exporter = false
+    {{- if .Values.stalwart.tracer.otel.throttle }}
+    throttle = "{{ .Values.stalwart.tracer.otel.throttle }}"
+    {{- end }}
+    {{- end }}
+
+    # OpenTelemetry tracer for traces - sends traces to OTel Collector
+    {{- if .Values.stalwart.tracer.otel.enableSpanExporter }}
+    [tracer.otel-traces]
+    type = "open-telemetry"
+    transport = "{{ .Values.stalwart.tracer.otel.transport }}"
+    endpoint = "{{ .Values.stalwart.tracer.otel.tracesEndpoint }}"
+    level = "{{ .Values.stalwart.tracer.otel.level }}"
+    enable = true
+    enable.log-exporter = false
+    enable.span-exporter = true
+    {{- if .Values.stalwart.tracer.otel.throttle }}
+    throttle = "{{ .Values.stalwart.tracer.otel.throttle }}"
+    {{- end }}
     {{- end }}
     {{- if .Values.clustering.enabled }}
 

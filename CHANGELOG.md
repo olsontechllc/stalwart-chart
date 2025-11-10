@@ -5,6 +5,35 @@ All notable changes to the Stalwart Helm Chart will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-11-10
+
+### Added
+- **OpenTelemetry Metrics Export**: New `stalwart.metrics.otel` configuration for exporting metrics to OpenTelemetry Collector
+  - `stalwart.metrics.otel.enabled` - Enable/disable metrics export (default: false)
+  - `stalwart.metrics.otel.transport` - Transport protocol: "grpc" or "http" (default: "grpc")
+  - `stalwart.metrics.otel.endpoint` - OTel Collector endpoint URL
+  - `stalwart.metrics.otel.interval` - Metrics push interval (default: "30s")
+  - Supports both gRPC (host:port) and HTTP (full URL with path) endpoints
+
+- **OpenTelemetry Tracer Configuration**: New `stalwart.tracer.otel` for logs and traces export
+  - `stalwart.tracer.otel.transport` - Transport protocol: "grpc" or "http" (default: "http")
+  - `stalwart.tracer.otel.logsEndpoint` - OTel Collector logs endpoint URL
+  - `stalwart.tracer.otel.tracesEndpoint` - OTel Collector traces endpoint URL
+  - `stalwart.tracer.otel.level` - Log level for OTel export (default: "info")
+  - `stalwart.tracer.otel.enableLogExporter` - Enable log export (default: true)
+  - `stalwart.tracer.otel.enableSpanExporter` - Enable trace export (default: true)
+  - `stalwart.tracer.otel.throttle` - Throttle duration between batches (default: "1s")
+  - Creates separate tracer instances for logs and traces with dedicated endpoints
+
+### Changed
+- ConfigMap template now generates separate OpenTelemetry tracer configurations (`[tracer.otel-logs]` and `[tracer.otel-traces]`)
+- OpenTelemetry configuration is opt-in and disabled by default to maintain backward compatibility
+
+### Notes
+- This release enables integration with OpenTelemetry-based observability platforms
+- Stalwart metrics, logs, and traces can be sent to collectors like OpenTelemetry Collector for processing and forwarding to backends like VictoriaMetrics, VictoriaLogs, Tempo, or Jaeger
+- All OpenTelemetry features are optional and disabled by default
+
 ## [0.3.0] - 2025-11-09
 
 ### Added
